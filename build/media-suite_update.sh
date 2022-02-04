@@ -141,23 +141,13 @@ if [[ -f /etc/pac-base.pk && -f /etc/pac-mingw.pk ]]; then
         echo "Remove:"
         echo "$uninstall"
         while true; do
-            read -r -p "remove packs [y/n]? " yn
-            case $yn in
-            [Yy]*)
-                for pkg in $uninstall; do
-                    {
-                        pacman -Rs --noconfirm --ask 20 "$pkg" >&2 2> /dev/null
-                        pacman -Qs "^${pkg}$" && pacman -D --noconfirm --ask 20 --asdeps "$pkg"
-                    } > /dev/null
-                done
-                break
-                ;;
-            [Nn]*)
-                pacman --noconfirm -D --asdeps $uninstall
-                break
-                ;;
-            *) echo "Please answer yes or no" ;;
-            esac
+            for pkg in $uninstall; do
+                {
+                    pacman -Rs --noconfirm --ask 20 "$pkg" >&2 2> /dev/null
+                    pacman -Qs "^${pkg}$" && pacman -D --noconfirm --ask 20 --asdeps "$pkg"
+                } > /dev/null
+            done
+            break
         done
     fi
     if [[ -n $install ]]; then
@@ -170,17 +160,10 @@ if [[ -f /etc/pac-base.pk && -f /etc/pac-mingw.pk ]]; then
         echo "Install:"
         echo "$install"
         while true; do
-            read -r -p "install packs [y/n]? " yn
-            case $yn in
-            [Yy]*)
-                xargs $nargs pacman -Sw --noconfirm --ask 20 --needed <<< "$install"
-                xargs $nargs pacman -S --noconfirm --ask 20 --needed <<< "$install"
-                pacman -D --asexplicit $install
-                break
-                ;;
-            [Nn]*) exit ;;
-            *) echo "Please answer yes or no" ;;
-            esac
+            xargs $nargs pacman -Sw --noconfirm --ask 20 --needed <<< "$install"
+            xargs $nargs pacman -S --noconfirm --ask 20 --needed <<< "$install"
+            pacman -D --asexplicit $install
+            break
         done
     fi
     rm -f /etc/pac-{base,mingw}.pk
